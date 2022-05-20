@@ -75,6 +75,11 @@ if '--project_name' in sys.argv:
 # comment the versioning scheme.
 # NOTE: Please add test only packages to `TEST_PACKAGES` below.
 REQUIRED_PACKAGES = [
+    # NOTE: As numpy has releases that break semver guarantees and several other
+    # deps depend on numpy without an upper bound, we must install numpy before
+    # everything else.
+    'numpy ~= 1.19.2',
+    # Install other dependencies
     'absl-py ~= 0.10',
     'astunparse ~= 1.6.3',
     'flatbuffers ~= 1.12.0',
@@ -83,7 +88,14 @@ REQUIRED_PACKAGES = [
     'keras_preprocessing ~= 1.1.2',
     'numpy ~= 1.19.2',
     'opt_einsum ~= 3.3.0',
-    'protobuf >= 3.9.2',
+    # TODO(b/182876485): Protobuf 3.20 results in linker errors on Windows
+    # Protobuf 4.0 is binary incompatible with what C++ TF uses.
+    # We need ~1 quarter to update properly.
+    # See also: https://github.com/tensorflow/tensorflow/issues/53234
+    # See also: https://github.com/protocolbuffers/protobuf/issues/9954
+    # See also: https://github.com/tensorflow/tensorflow/issues/56077
+    # This is a temporary patch for now, to patch previous TF releases.
+    'protobuf >= 3.9.2, < 3.20',
     'six ~= 1.15.0',
     'termcolor ~= 1.1.0',
     'typing_extensions ~= 3.7.4',
